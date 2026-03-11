@@ -45,7 +45,7 @@ Hermes is built for operator-led AI marketing systems where you need execution v
 > **Requires [pnpm](https://pnpm.io/installation)** — install with `npm install -g pnpm` or `corepack enable`.
 
 ```bash
-git clone https://github.com/builderz-labs/hermes-dashboard.git
+git clone https://github.com/your-org/hermes-dashboard.git
 cd hermes-dashboard
 pnpm install
 pnpm env:bootstrap
@@ -163,7 +163,7 @@ Contributions welcome. Read the [contribution guidelines](CONTRIBUTING.md) first
 
 If you find this project useful, consider supporting my open-source work.
 
-[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-support-orange?logo=buymeacoffee)](https://buymeacoffee.com/nyk_builderz)
+[![Sponsor](https://img.shields.io/badge/Sponsor-support-orange?logo=githubsponsors)](https://github.com/sponsors/your-org)
 
 **Solana donations**
 
@@ -179,8 +179,8 @@ related or neighboring rights to this work.
 ---
 
 <p align="center">
-  <a href="https://star-history.com/#builderz-labs/hermes-dashboard&Date">
-    <img src="https://api.star-history.com/svg?repos=builderz-labs/hermes-dashboard&type=Date" alt="Star History" width="400">
+  <a href="https://star-history.com/#your-org/hermes-dashboard&Date">
+    <img src="https://api.star-history.com/svg?repos=your-org/hermes-dashboard&type=Date" alt="Star History" width="400">
   </a>
 </p>
 
