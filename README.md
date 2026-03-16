@@ -1,6 +1,6 @@
 <div align="center">
 
-# Hermes Dashboard
+# Makreting Dashboard
 
 **The open-source marketing operations control center for AI agent teams.**
 
