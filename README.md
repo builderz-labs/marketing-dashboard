@@ -169,6 +169,19 @@ If you find this project useful, consider supporting my open-source work.
 
 `BYLu8XD8hGDUtdRBWpGWu5HKoiPrWqCxYFSh4oxXuvPg`
 
+
+---
+
+<div align="center">
+
+**Need agent infrastructure, trading systems, or Solana applications built for your team?**
+
+[Builderz](https://builderz.dev) ships production AI systems — 32+ products across 15 countries.
+
+[Get in touch](https://builderz.dev) | [@nyk_builderz](https://x.com/nyk_builderz)
+
+</div>
+
 ## License
 
 [![CC0](https://licensebuttons.net/p/zero/1.0/88x31.png)](https://creativecommons.org/publicdomain/zero/1.0/)

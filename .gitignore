@@ -32,9 +32,6 @@ yarn-error.log*
 .pnpm-debug.log*
 
 # env files (can opt-in for committing if needed)
-.env
-.env.local
-.env.production
 
 # sqlite
 *.db
@@ -57,3 +54,7 @@ hermes-seed-fix.bundle
 /.tmp/
 /test-results/
 /playwright-report/
+branch_structure.json
+temp_auto_push.bat
+temp_interactive_push.bat
+config.bat
