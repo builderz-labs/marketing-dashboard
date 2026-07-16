@@ -18,8 +18,8 @@ const jetbrains = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Hermes Dashboard",
-  description: "Open-source marketing operations control center for AI agent teams",
+  title: "Marketing Dashboard",
+  description: "Local-first marketing operations control center for human and agent workflows",
 };
 
 export const viewport = {

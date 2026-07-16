@@ -1,5 +1,5 @@
 [Unit]
-Description=Hermes Dashboard (Next.js)
+Description=Marketing Dashboard (Next.js)
 After=network-online.target
 Wants=network-online.target
 

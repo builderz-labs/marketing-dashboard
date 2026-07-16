@@ -1105,7 +1105,7 @@ export default function SettingsPage() {
           <div className="space-y-2 text-xs">
             <div className="flex items-center justify-between py-1">
               <span className="text-muted-foreground">Dashboard</span>
-            <span>Hermes Dashboard v{dashboardVersion}</span>
+              <span>Marketing Dashboard v{dashboardVersion}</span>
             </div>
             <div className="flex items-center justify-between py-1">
               <span className="text-muted-foreground">Runtime</span>
@@ -1121,11 +1121,11 @@ export default function SettingsPage() {
             </div>
             <div className="flex items-center justify-between py-1">
               <span className="text-muted-foreground">Source</span>
-            <a
-              href="https://github.com/your-org/hermes-dashboard"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-primary hover:underline flex items-center gap-1"
+              <a
+                href="https://github.com/builderz-labs/marketing-dashboard"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary hover:underline flex items-center gap-1"
             >
               GitHub <ExternalLink size={10} />
             </a>

@@ -115,7 +115,7 @@ export default function LoginPage() {
       <div className="w-full max-w-sm p-8 rounded-xl border border-[var(--border)] bg-[var(--card)]">
         <div className="text-center mb-8">
           <div className="text-3xl mb-2">&#127963;&#65039;</div>
-          <h1 className="text-xl font-semibold text-[var(--foreground)]">Hermes Dashboard</h1>
+          <h1 className="text-xl font-semibold text-[var(--foreground)]">Marketing Dashboard</h1>
           <p className="text-sm text-[var(--muted-foreground)] mt-1">Marketing Engine Control Center</p>
         </div>
 

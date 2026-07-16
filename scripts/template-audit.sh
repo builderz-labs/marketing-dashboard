@@ -25,8 +25,12 @@ if git ls-files -z | xargs -0 rg -n "$BAD" >/dev/null; then
   exit 1
 fi
 
-# 2b) Block org/person-specific template residue.
-BAD_TEMPLATE_RESIDUE="(builderz|leads-prod|@builderz\\.dev)"
+# 2b) Block deployment-specific template residue.
+#
+# Canonical repository links, maintainer contacts, and Builderz attribution are
+# expected in this public project. This check targets private deployment names,
+# not the repository's own identity.
+BAD_TEMPLATE_RESIDUE="(leads-prod)"
 TRACKED_NO_SELF="$(git ls-files | rg -v '^scripts/template-audit\.sh$' || true)"
 if [ -n "$TRACKED_NO_SELF" ] && printf '%s\n' "$TRACKED_NO_SELF" | xargs rg -n -i "$BAD_TEMPLATE_RESIDUE" >/dev/null; then
   echo "Found org-specific residue in tracked files:" >&2
