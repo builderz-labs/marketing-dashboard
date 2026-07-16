@@ -1,199 +1,192 @@
-<div align="center">
+<p align="center">
+  <img src="public/readme/marketing-dashboard-hero.jpeg" alt="Marketing Dashboard connects CRM, outreach, content, analytics, approvals, and automations" width="960">
+</p>
 
-# Makreting Dashboard
+<p align="center">
+  <strong>A local-first marketing operations control center for teams running human and agent workflows.</strong>
+</p>
 
-**The open-source marketing operations control center for AI agent teams.**
-
-Run CRM, outreach, content, analytics, and automation workflows from one dashboard, powered by OpenClaw + SQLite.
-
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Next.js 16](https://img.shields.io/badge/Next.js-16-black?logo=next.js)](https://nextjs.org/)
-[![React 19](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white)](https://react.dev/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)](https://typescriptlang.org/)
-[![SQLite](https://img.shields.io/badge/SQLite-local-003B57?logo=sqlite&logoColor=white)](https://sqlite.org/)
-
-![Hermes Dashboard Overview](./public/hermes-dashboard-mission-control.png)
-
-</div>
+<p align="center">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-6B5CFF.svg" alt="MIT license"></a>
+  <a href="https://github.com/builderz-labs/marketing-dashboard/actions/workflows/ci.yml"><img src="https://github.com/builderz-labs/marketing-dashboard/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="https://nextjs.org/"><img src="https://img.shields.io/badge/Next.js-16-17191F.svg" alt="Next.js 16"></a>
+  <a href="https://github.com/builderz-labs/marketing-dashboard"><img src="https://img.shields.io/github/stars/builderz-labs/marketing-dashboard" alt="GitHub stars"></a>
+</p>
 
 ---
 
-> **Alpha Software** — Hermes Dashboard is under active development. APIs, data models, and configuration behavior can change between releases.
+Marketing Dashboard brings CRM, outreach, content planning, analytics, approvals, automation schedules, and agent activity into one self-hosted interface. It runs on Next.js and SQLite, works without required hosted infrastructure, and can connect to OpenClaw and external marketing services when you choose.
 
-## Why Hermes Dashboard?
+> **Project status:** alpha. The working surface is broad, but APIs, schemas, and configuration may change between releases.
 
-Hermes is built for operator-led AI marketing systems where you need execution visibility and control, not disconnected tools.
+## What it controls
 
-- **Marketing system in one place** — CRM, outreach, content ops, analytics, experiments, and automations
-- **OpenClaw-native operations** — Dynamic agent/squad discovery, cron templates, workspace and comms surfaces
-- **Local-first stack** — Next.js + SQLite, no required external infra to run locally
-- **Secure-by-default template posture** — Session auth, API key support, host lock, and writeback controls disabled by default
-- **Production workflow support** — Deploy status, auditability, role-based access, and e2e-covered auth/API flows
+| Area | Current surface |
+|---|---|
+| CRM | Leads, sources, pipeline stages, lead quality, and record details |
+| Outreach | Sequences, suppression, pausing, audits, and engagement |
+| Content | Calendar, content items, performance, and approval queues |
+| Analytics | KPI views plus optional Plausible, GA4, X, and LinkedIn connectors |
+| Agents | OpenClaw instance discovery, squads, workspaces, sessions, and communications |
+| Automations | Cron jobs, templates, approvals, activity, and deployment status |
 
-## Screenshots
+The dashboard is operator-led. Approval, pause, writeback, and host-access controls remain visible instead of being hidden behind autonomous execution.
 
-### Overview
-![Hermes Dashboard CRM](./public/hermes-dashboard-mission-control.png)
+![Signals move through qualification, planning, approval, execution, and measurement](public/readme/marketing-operations-loop.jpeg)
 
-### CRM
-![Hermes Dashboard Overview](./public/hermes-dashboard-overview.png)
+## Quick start
 
+### Requirements
 
+- Node.js 20
+- pnpm 10
+- A local machine or private host that can persist SQLite state
 
-## Quick Start
-
-> **Requires [pnpm](https://pnpm.io/installation)** — install with `npm install -g pnpm` or `corepack enable`.
+### Run locally
 
 ```bash
-git clone https://github.com/your-org/hermes-dashboard.git
-cd hermes-dashboard
-pnpm install
+git clone https://github.com/builderz-labs/marketing-dashboard.git
+cd marketing-dashboard
+corepack enable
+pnpm install --frozen-lockfile
 pnpm env:bootstrap
 pnpm dev
 ```
 
 Open `http://localhost:3000`.
 
-Initial admin access is seeded from `AUTH_USER` / `AUTH_PASS` on first run when the users table is empty.
+The first login is seeded from `AUTH_USER` and `AUTH_PASS` when the users table is empty. Change the example credentials in `.env.local` before starting the application.
 
-## Project Status
+## Local-first architecture
 
-### What Works
+The application, authentication, and SQLite state run locally. Provider connectors are optional and receive credentials from server-side environment variables.
 
-- CRM leads, pipeline funnel, source tracking, and engagement APIs
-- Outreach sequencing, pause/audit endpoints, and suppression workflows
-- Content operations with calendar, item, and performance APIs
-- Analytics/KPI views with optional connectors (Plausible, GA4, social)
-- Dynamic OpenClaw agent discovery for agents and squads
-- Cron jobs/templates with OpenClaw-compatible schedule variants (`cron`, `every`, `at`)
-- Deploy status endpoint with OpenClaw config validation preflight
-- Session auth + API key auth with role-based access controls
+![Marketing Dashboard keeps application state local and treats external services as optional connectors](public/readme/local-first-architecture.jpeg)
 
-### Known Limitations
+| Layer | Implementation |
+|---|---|
+| Application | Next.js 16 App Router, React 19, TypeScript |
+| Interface | Tailwind CSS 4, Recharts, Zustand |
+| State | SQLite through `better-sqlite3` |
+| Authentication | Session cookie, API key, optional Google OAuth |
+| Agent connection | OpenClaw CLI and filesystem discovery |
+| Deployment | Local process, standalone build, or private HTTPS host |
 
-- Alpha surface area is still evolving; expect occasional schema/UI shifts
-- Certain integrations require external provider setup and credentials
-
-### Security Considerations
-
-- Change seeded credentials (`AUTH_USER`, `AUTH_PASS`, `API_KEY`) before network deployment
-- Keep host lock enabled unless you explicitly need broader access (`HERMES_HOST_LOCK=local` by default)
-- Keep writeback flags disabled unless required:
-  - `HERMES_ALLOW_POLICY_WRITE=false`
-  - `HERMES_ALLOW_CRON_WRITE=false`
-  - `HERMES_ALLOW_WORKSPACE_WRITE=false`
-- Never commit real credentials or personal data
-
-## Architecture
-
-| Layer | Technology |
-|-------|------------|
-| Framework | Next.js 16 (App Router) |
-| UI | React 19 + TypeScript |
-| Data | SQLite (local state in `./state`) |
-| Agent Runtime | OpenClaw CLI + filesystem integration |
-| Auth | Session cookie + API key + optional Google OAuth |
+Environment variables retain the `HERMES_*` prefix for backward compatibility with existing deployments. The public project name is Marketing Dashboard.
 
 ## Configuration
 
-See [`.env.example`](.env.example) for the full list.
+Copy [`.env.example`](.env.example) to `.env.local` through `pnpm env:bootstrap`, then replace all seed secrets.
 
 ### Required
 
-- `AUTH_USER`
-- `AUTH_PASS` (minimum 10 chars)
-- `API_KEY`
-- `AUTH_COOKIE_SECURE` (`false` for HTTP local dev, `true` for HTTPS)
+| Variable | Purpose |
+|---|---|
+| `AUTH_USER` | Initial admin username |
+| `AUTH_PASS` | Initial admin password, minimum 10 characters |
+| `API_KEY` | API and webhook authentication |
+| `AUTH_COOKIE_SECURE` | Set `true` on HTTPS deployments |
 
-### OpenClaw / Multi-instance
+### Runtime and host boundaries
 
-- `HERMES_OPENCLAW_HOME`
-- `HERMES_DEFAULT_INSTANCE`
-- `HERMES_OPENCLAW_INSTANCES` (optional JSON array for multi-instance)
+| Variable | Default | Purpose |
+|---|---|---|
+| `HERMES_STATE_DIR` | `./state` | Local SQLite and runtime state |
+| `HERMES_OPENCLAW_HOME` | `~/.openclaw` | Default OpenClaw home |
+| `HERMES_HOST_LOCK` | `local` | Restrict accepted hosts |
+| `HERMES_ALLOW_POLICY_WRITE` | `false` | Allow policy file changes |
+| `HERMES_ALLOW_CRON_WRITE` | `false` | Allow cron file changes |
+| `HERMES_ALLOW_WORKSPACE_WRITE` | `false` | Allow agent workspace changes |
 
-### Optional 1Password Runtime Overlay
+Multi-instance discovery uses `HERMES_OPENCLAW_INSTANCES`, a JSON array documented in [`.env.example`](.env.example).
 
-- `HERMES_1PASSWORD_MODE=off|auto|required` (`auto` is default behavior)
-- `HERMES_OP_ENV_FILE=/etc/hermes-dashboard/hermes-dashboard.op.env`
-- Example mapping: `ops/1password/hermes-dashboard.op.env.example`
+### Optional integrations
 
-### Host Access Lock
+- Google OAuth
+- Plausible and Google Analytics 4
+- Gmail and Mailchimp
+- Sanity
+- Helius
+- X and LinkedIn
+- 1Password runtime environment overlays
+- Ollama model-health checks
 
-- `HERMES_HOST_LOCK=local` (default)
-- `HERMES_HOST_LOCK=off`
-- `HERMES_HOST_LOCK=host1,host2`
+Every integration is optional. Keep unused credentials unset.
+
+## Deployment safety
+
+Start with a local read-only posture, verify each boundary, and enable writeback only for operations you intend to expose.
+
+![Safe deployment progresses from changed credentials to private hosting, HTTPS, and opt-in writeback](public/readme/deployment-safety-path.jpeg)
+
+- Replace `AUTH_USER`, `AUTH_PASS`, and `API_KEY`.
+- Keep `HERMES_HOST_LOCK=local` unless you have an explicit host allowlist.
+- Use HTTPS and `AUTH_COOKIE_SECURE=true` outside local development.
+- Load production secrets from a secret manager or runtime environment.
+- Leave all `HERMES_ALLOW_*_WRITE` variables disabled until their write paths are required and reviewed.
+- Return to read-only mode by disabling the writeback flags.
+
+See [SECURITY.md](SECURITY.md) for private vulnerability reporting and supported-version policy.
+
+## Screenshots
+
+### Mission-control overview
+
+![Marketing Dashboard overview](public/hermes-dashboard-mission-control.png)
+
+### CRM and operating surfaces
+
+![Marketing Dashboard CRM](public/hermes-dashboard-overview.png)
+
+The screenshot filenames retain their original names for compatibility with existing links.
 
 ## Development
 
 ```bash
-pnpm dev
-pnpm build
-pnpm typecheck
 pnpm lint
+pnpm typecheck
 pnpm test
+pnpm build
 pnpm test:e2e
+bash ./scripts/template-audit.sh
 ```
 
-## Template Export and Hygiene
+The CI workflow runs the template audit, lint, typecheck, unit tests, production build, and Playwright tests.
 
-Before publishing as a template or sharing broadly:
+## Standalone deployment
 
 ```bash
-./scripts/template-audit.sh
-./scripts/template-export.sh [output_dir]
+pnpm build:standalone
+pnpm start
 ```
 
-Export excludes sensitive/runtime artifacts like `.env*`, database files, `.next`, and `node_modules`.
+Operational examples for systemd and 1Password live under [`ops/`](ops/).
 
-## Open Source
+## Template export
 
-- License: [MIT](./LICENSE)
-- Security: [SECURITY.md](./SECURITY.md)
-- Contributing: [CONTRIBUTING.md](./CONTRIBUTING.md)
-- Code of Conduct: [CODE_OF_CONDUCT.md](./CODE_OF_CONDUCT.md)
-- Third-Party Notices: [THIRD_PARTY_NOTICES.md](./THIRD_PARTY_NOTICES.md)
+Before sharing or publishing a derived template:
 
+```bash
+bash ./scripts/template-audit.sh
+bash ./scripts/template-export.sh ./export
+```
 
+The export excludes environment files, databases, build output, dependency directories, test artifacts, and runtime state.
 
-## Contributing
+## Repository policy
 
-Contributions welcome. Read the [contribution guidelines](CONTRIBUTING.md) first.
+- [CONTRIBUTING.md](CONTRIBUTING.md) describes development and PR evidence.
+- [SECURITY.md](SECURITY.md) defines private reporting.
+- [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) covers community participation.
+- [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) records dependency notices.
+- [CHANGELOG.md](CHANGELOG.md) tracks project changes.
 
-## ❤️ Support the Project
+Use [GitHub Issues](https://github.com/builderz-labs/marketing-dashboard/issues) for reproducible bugs and scoped feature requests. Security reports must not be filed publicly.
 
-If you find this project useful, consider supporting my open-source work.
+## Built by Builderz
 
-[![Sponsor](https://img.shields.io/badge/Sponsor-support-orange?logo=githubsponsors)](https://github.com/sponsors/your-org)
-
-**Solana donations**
-
-`BYLu8XD8hGDUtdRBWpGWu5HKoiPrWqCxYFSh4oxXuvPg`
-
-
----
-
-<div align="center">
-
-**Need agent infrastructure, trading systems, or Solana applications built for your team?**
-
-[Builderz](https://builderz.dev) ships production AI systems — 32+ products across 15 countries.
-
-[Get in touch](https://builderz.dev) | [@nyk_builderz](https://x.com/nyk_builderz)
-
-</div>
+[Builderz](https://builderz.dev) builds agent infrastructure, trading systems, and Solana applications.
 
 ## License
 
-[![CC0](https://licensebuttons.net/p/zero/1.0/88x31.png)](https://creativecommons.org/publicdomain/zero/1.0/)
-
-To the extent possible under law, the authors have waived all copyright and
-related or neighboring rights to this work.
-
----
-
-<p align="center">
-  <a href="https://star-history.com/#your-org/hermes-dashboard&Date">
-    <img src="https://api.star-history.com/svg?repos=your-org/hermes-dashboard&type=Date" alt="Star History" width="400">
-  </a>
-</p>
-
+Licensed under the [MIT License](LICENSE).

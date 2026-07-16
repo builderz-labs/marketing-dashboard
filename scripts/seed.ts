@@ -1,5 +1,5 @@
 /**
- * Seed script — populates the Hermes dashboard SQLite database with realistic sample data.
+ * Seed script that populates the Marketing Dashboard SQLite database with sample data.
  * Run with: npx tsx scripts/seed.ts
  */
 import Database from 'better-sqlite3';
