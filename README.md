@@ -187,6 +187,8 @@ Use [GitHub Issues](https://github.com/builderz-labs/marketing-dashboard/issues)
 
 [Builderz](https://builderz.dev) builds agent infrastructure, trading systems, and Solana applications.
 
+Maintained by [Nyk](https://nyk.dev). [Sponsor ongoing open-source maintenance](https://github.com/sponsors/0xNyk) or follow [@nykdotdev](https://x.com/nykdotdev).
+
 ## License
 
 Licensed under the [MIT License](LICENSE).
