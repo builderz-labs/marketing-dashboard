@@ -18,7 +18,7 @@
     "postbuild": "pnpm run prepare:standalone"
   },
   "dependencies": {
-    "better-sqlite3": "^12.6.2",
+    "better-sqlite3": "^12.11.1",
     "clsx": "^2.1.1",
     "google-auth-library": "^10.5.0",
     "imapflow": "^1.2.9",
@@ -36,17 +36,18 @@
     },
     "onlyBuiltDependencies": [
       "better-sqlite3",
+      "esbuild",
       "sharp",
       "unrs-resolver"
     ]
   },
   "devDependencies": {
+    "@playwright/test": "^1.56.1",
     "@tailwindcss/postcss": "^4",
     "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "@playwright/test": "^1.56.1",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
     "tailwindcss": "^4",
