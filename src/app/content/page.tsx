@@ -95,7 +95,7 @@ export default function ContentPage() {
                 <span className="text-sm max-w-md truncate block">{r.text_preview || '\u2014'}</span>
               )},
               { key: 'pillar', label: 'Pillar', render: (r: ContentPost) => (
-                r.pillar ? <span className="text-xs">{PILLAR_LABELS[r.pillar] || `P${r.pillar}`}</span> : <span>\u2014</span>
+                r.pillar ? <span className="text-xs">{PILLAR_LABELS[r.pillar] || `P${r.pillar}`}</span> : <span>{'\u2014'}</span>
               )},
               { key: 'format', label: 'Format', render: (r: ContentPost) => (
                 <span className="text-xs text-muted-foreground">{r.format.replace(/_/g, ' ')}</span>

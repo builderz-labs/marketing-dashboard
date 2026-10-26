@@ -1,1 +1,21 @@
-onlyBuiltDependencies: better-sqlite3,sharp,unrs-resolver
+onlyBuiltDependencies:
+  - better-sqlite3
+  - sharp
+  - unrs-resolver
+
+# Security overrides for transitive dependencies (Dependabot alerts).
+# Each selector targets only the vulnerable range and stays on the same major.
+overrides:
+  minimatch: ^9.0.7
+  '@babel/core@<7.29.6': ^7.29.6
+  '@humanfs/node@<0.16.8': ^0.16.8
+  baseline-browser-mapping@<2.11.0: ^2.11.0
+  brace-expansion@>=2.0.0 <2.1.7: ^2.1.7
+  browserslist@<4.28.7: ^4.28.7
+  flatted@<3.4.2: ^3.4.2
+  js-yaml@>=4.0.0 <4.3.2: ^4.3.2
+  nanoid@<3.3.18: ^3.3.18
+  picomatch@<2.3.2: ^2.3.2
+  picomatch@>=4.0.0 <4.0.4: ^4.0.4
+  postcss@<8.5.23: ^8.5.23
+  source-map-js@<1.2.2: ^1.2.2

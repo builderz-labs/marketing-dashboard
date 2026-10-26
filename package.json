@@ -18,27 +18,17 @@
     "postbuild": "pnpm run prepare:standalone"
   },
   "dependencies": {
-    "better-sqlite3": "^12.6.2",
+    "better-sqlite3": "^12.11.1",
     "clsx": "^2.1.1",
     "google-auth-library": "^10.5.0",
-    "imapflow": "^1.2.9",
+    "imapflow": "^1.7.8",
     "lucide-react": "^0.563.0",
-    "next": "16.1.6",
+    "next": "16.4.3",
     "next-themes": "^0.4.6",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "recharts": "^3.7.0",
     "zustand": "^5.0.11"
-  },
-  "pnpm": {
-    "overrides": {
-      "minimatch": "^9.0.7"
-    },
-    "onlyBuiltDependencies": [
-      "better-sqlite3",
-      "sharp",
-      "unrs-resolver"
-    ]
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
@@ -50,7 +40,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
     "tailwindcss": "^4",
-    "tsx": "^4.21.0",
+    "tsx": "^4.23.15",
     "typescript": "^5"
   }
 }
