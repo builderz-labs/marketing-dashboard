@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Mail, Linkedin, Clock, ChevronLeft, ChevronRight, Check, XCircle, Save, X, Ban, Pause, Play, Trash2, Edit3, Loader2, ChevronDown, ChevronUp, Send, CheckCircle, MessageSquare, Eye, CalendarCheck, Star, CircleDot } from 'lucide-react';
 import { useSmartPoll } from '@/hooks/use-smart-poll';
 import { timeAgo } from '@/lib/utils';
@@ -77,28 +77,33 @@ export function LeadDetailPanel({
     { interval: 30_000, key: detailRefresh },
   );
 
-  useEffect(() => {
-    if (data?.lead?.notes !== undefined) {
-      setNotesValue(data.lead.notes || '');
+  // Refresh the editable drafts when a new lead payload arrives (or profile
+  // editing ends), adjusting state during render instead of in an effect.
+  const loadedLead = data?.lead;
+  const [syncedDraftSource, setSyncedDraftSource] = useState({ lead: loadedLead, editingProfile });
+  if (syncedDraftSource.lead !== loadedLead || syncedDraftSource.editingProfile !== editingProfile) {
+    setSyncedDraftSource({ lead: loadedLead, editingProfile });
+    if (loadedLead?.notes !== undefined) {
+      setNotesValue(loadedLead.notes || '');
     }
-    if (data?.lead?.next_action_at) {
-      setNextAction(data.lead.next_action_at.split('T')[0]);
+    if (loadedLead?.next_action_at) {
+      setNextAction(loadedLead.next_action_at.split('T')[0]);
     }
-    if (!editingProfile && data?.lead) {
+    if (!editingProfile && loadedLead) {
       setProfileDraft({
-        first_name: data.lead.first_name || '',
-        last_name: data.lead.last_name || '',
-        title: data.lead.title || '',
-        company: data.lead.company || '',
-        company_size: data.lead.company_size || '',
-        industry_segment: data.lead.industry_segment || '',
-        source: data.lead.source || '',
-        email: data.lead.email || '',
-        linkedin_url: data.lead.linkedin_url || '',
-        score: typeof data.lead.score === 'number' ? String(data.lead.score) : '',
+        first_name: loadedLead.first_name || '',
+        last_name: loadedLead.last_name || '',
+        title: loadedLead.title || '',
+        company: loadedLead.company || '',
+        company_size: loadedLead.company_size || '',
+        industry_segment: loadedLead.industry_segment || '',
+        source: loadedLead.source || '',
+        email: loadedLead.email || '',
+        linkedin_url: loadedLead.linkedin_url || '',
+        score: typeof loadedLead.score === 'number' ? String(loadedLead.score) : '',
       });
     }
-  }, [data?.lead, editingProfile]);
+  }
 
   function showFeedback(type: 'success' | 'error', msg: string) {
     setFeedback({ type, msg });

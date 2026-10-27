@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Play, Pause, RotateCcw, History, ThermometerSun, Pencil, Plus, Trash2, X, BookmarkPlus } from 'lucide-react';
 import { useSmartPoll } from '@/hooks/use-smart-poll';
 import { toast } from '@/components/ui/toast';
@@ -124,11 +124,6 @@ export function CronBoard({ variant = 'embedded' }: { variant?: 'page' | 'embedd
     }
   };
 
-  useEffect(() => {
-    if (!editOpen) return;
-    refreshTemplates();
-  }, [editOpen]);
-
   const runAction = async (id: string, action: 'toggle' | 'trigger') => {
     setPending((p) => ({ ...p, [id]: true }));
     try {
@@ -170,6 +165,7 @@ export function CronBoard({ variant = 'embedded' }: { variant?: 'page' | 'embedd
       skill: 'custom',
     }, null, 2));
     setEditOpen(true);
+    if (!editOpen) refreshTemplates();
   };
 
   const openEdit = (job: CronJob) => {
@@ -183,6 +179,7 @@ export function CronBoard({ variant = 'embedded' }: { variant?: 'page' | 'embedd
     delete rest.lastResult;
     setEditJson(JSON.stringify(rest, null, 2));
     setEditOpen(true);
+    if (!editOpen) refreshTemplates();
   };
 
   const loadTemplate = (id: string) => {

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useEffectEvent } from 'react';
 import {
   Settings, Database, Shield, Info, ExternalLink,
   RefreshCw, Trash2, Users, UserPlus, KeyRound, BrainCircuit, BellRing,
@@ -195,15 +195,24 @@ export default function SettingsPage() {
     };
   }, []);
 
+  // Admin-only lists load once the session role is known.
+  const onSessionLoaded = useEffectEvent((user: MeResponse['user'] | null) => {
+    setCurrentUser(user);
+    if (user?.role === 'admin') {
+      loadUsers(user.role).catch(() => {});
+      loadLoginRequests(user.role).catch(() => {});
+    }
+  });
+
   useEffect(() => {
     fetch('/api/auth/me')
       .then((r) => r.json())
-      .then((data: MeResponse) => setCurrentUser(data.user || null))
+      .then((data: MeResponse) => onSessionLoaded(data.user || null))
       .catch(() => setCurrentUser(null));
   }, []);
 
-  async function loadUsers() {
-    if (currentUser?.role !== 'admin') return;
+  async function loadUsers(role = currentUser?.role) {
+    if (role !== 'admin') return;
     setUserLoading(true);
     try {
       const res = await fetch('/api/users', { cache: 'no-store' });
@@ -217,8 +226,8 @@ export default function SettingsPage() {
     }
   }
 
-  async function loadLoginRequests() {
-    if (currentUser?.role !== 'admin') return;
+  async function loadLoginRequests(role = currentUser?.role) {
+    if (role !== 'admin') return;
     setRequestLoading(true);
     try {
       const res = await fetch('/api/users/requests', { cache: 'no-store' });
@@ -237,12 +246,6 @@ export default function SettingsPage() {
       setRequestLoading(false);
     }
   }
-
-  useEffect(() => {
-    loadUsers().catch(() => {});
-    loadLoginRequests().catch(() => {});
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentUser?.role]);
 
   async function triggerSync() {
     setSyncing(true);

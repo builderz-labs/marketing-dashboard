@@ -12,10 +12,13 @@ function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  useEffect(() => {
-    const msg = searchParams.get('error');
-    if (msg) setError(msg);
-  }, [searchParams]);
+  // Surface an ?error= message whenever the URL's value changes.
+  const urlError = searchParams.get('error');
+  const [syncedUrlError, setSyncedUrlError] = useState<string | null>(null);
+  if (syncedUrlError !== urlError) {
+    setSyncedUrlError(urlError);
+    if (urlError) setError(urlError);
+  }
 
   useEffect(() => {
     fetch('/api/auth/providers')

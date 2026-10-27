@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useEffect, useRef, DragEvent } from 'react';
+import { useState, useCallback, useEffect, useRef, useSyncExternalStore, DragEvent } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import {
@@ -70,6 +70,15 @@ const TIER_COLORS: Record<string, string> = {
 type ViewMode = 'list' | 'kanban';
 type Role = 'admin' | 'editor' | 'viewer';
 
+// Minute-resolution wall clock for SLA ages. The server snapshot is null so
+// render stays pure (react-hooks/purity) and hydration matches.
+function subscribeMinuteClock(onChange: () => void) {
+  const t = setInterval(onChange, 60_000);
+  return () => clearInterval(t);
+}
+const getMinuteClock = () => Math.floor(Date.now() / 60_000) * 60_000;
+const getServerClock = () => null;
+
 export default function CrmPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -111,34 +120,30 @@ export default function CrmPage() {
   const [search, setSearch] = useState('');
   const [stageFilter, setStageFilter] = useState('');
   const [tierFilter, setTierFilter] = useState('');
-  const [nowMs, setNowMs] = useState<number | null>(null);
-
-  // Avoid calling Date.now() during render (react-hooks/purity).
-  useEffect(() => {
-    setNowMs(Date.now());
-    const t = setInterval(() => setNowMs(Date.now()), 60_000);
-    return () => clearInterval(t);
-  }, []);
+  const nowMs = useSyncExternalStore(subscribeMinuteClock, getMinuteClock, getServerClock);
   const [selectedLead, setSelectedLead] = useState<string | null>(null);
-  useEffect(() => {
-    if (urlLeadId && (!selectedLead || selectedLead !== urlLeadId)) {
-      setSelectedLead(urlLeadId);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [urlLeadId]);
+  const [sortField, setSortField] = useState<'score' | 'created_at'>('score');
+  const [refreshKey, setRefreshKey] = useState(0);
+  const [viewMode, setViewMode] = useState<ViewMode>('list');
+
+  // Follow the URL's lead param when it changes (deep links, back/forward).
+  const [syncedUrlLeadId, setSyncedUrlLeadId] = useState<string | null>(null);
+  if (syncedUrlLeadId !== urlLeadId) {
+    setSyncedUrlLeadId(urlLeadId);
+    if (urlLeadId && selectedLead !== urlLeadId) setSelectedLead(urlLeadId);
+  }
 
   // Keep local filters in sync with URL (back/forward, deep links).
-  useEffect(() => {
+  const urlFilterKey = [urlStatus, urlTier, urlSearch, urlView, urlSort].join('\u0000');
+  const [syncedUrlFilterKey, setSyncedUrlFilterKey] = useState<string | null>(null);
+  if (syncedUrlFilterKey !== urlFilterKey) {
+    setSyncedUrlFilterKey(urlFilterKey);
     if (urlStatus !== stageFilter) setStageFilter(urlStatus);
     if (urlTier !== tierFilter) setTierFilter(urlTier);
     if (urlSearch !== search) setSearch(urlSearch);
     if ((urlView === 'kanban' || urlView === 'list') && urlView !== viewMode) setViewMode(urlView);
     if ((urlSort === 'score' || urlSort === 'created_at') && urlSort !== sortField) setSortField(urlSort);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [urlStatus, urlTier, urlSearch, urlView, urlSort]);
-  const [sortField, setSortField] = useState<'score' | 'created_at'>('score');
-  const [refreshKey, setRefreshKey] = useState(0);
-  const [viewMode, setViewMode] = useState<ViewMode>('list');
+  }
   const [role, setRole] = useState<Role>('viewer');
   const [slaStaleDays, setSlaStaleDays] = useState(7);
   const [slaNewDays, setSlaNewDays] = useState(3);

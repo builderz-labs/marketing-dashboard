@@ -97,7 +97,6 @@ export default function AgentWorkspacePage() {
 
   useEffect(() => {
     let mounted = true;
-    setLoadingRoots(true);
     fetch('/api/agents/workspace-roots')
       .then((r) => r.json())
       .then((data) => {
@@ -130,42 +129,62 @@ export default function AgentWorkspacePage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  useEffect(() => {
+  // Sync root metadata from the loaded roots, and reset the browser when the
+  // selected root changes (adjusting state during render, not in an effect).
+  const [syncedRoot, setSyncedRoot] = useState({ roots, rootId });
+  if (syncedRoot.roots !== roots || syncedRoot.rootId !== rootId) {
+    const rootChanged = syncedRoot.rootId !== rootId;
+    setSyncedRoot({ roots, rootId });
     const r = roots.find((x) => x.id === rootId);
-    if (!r) return;
-    setRootWritable(Boolean(r.writable));
-    setRootLabel(r.label);
-  }, [roots, rootId]);
+    if (r) {
+      setRootWritable(Boolean(r.writable));
+      setRootLabel(r.label);
+    }
+    if (rootChanged) {
+      setCwd('');
+      setSelected(null);
+      setContent('');
+    }
+  }
+
+  // Show the list loading state whenever the listed directory changes.
+  const listKey = `${rootId}\u0000${cwd}`;
+  const [loadingListKey, setLoadingListKey] = useState(listKey);
+  if (loadingListKey !== listKey) {
+    setLoadingListKey(listKey);
+    setLoadingList(true);
+    setWriteBlocked(null);
+  }
+
+  const fetchEntries = useCallback(() => {
+    const qs = new URLSearchParams();
+    qs.set('rootId', rootId);
+    if (cwd) qs.set('path', cwd);
+    return fetch(`/api/agents/workspace?${qs.toString()}`)
+      .then(async (res) => {
+        const data = await res.json();
+        if (!res.ok) throw new Error(String(data?.error || 'Failed'));
+        setEntries(data.entries || []);
+        setRootWritable(Boolean(data.writable));
+        setRootLabel((prev) => String(data.rootLabel || prev));
+      })
+      .catch((e) => {
+        toast.error((e as Error).message || 'Failed to load workspace files');
+      })
+      .finally(() => {
+        setLoadingList(false);
+      });
+  }, [cwd, rootId]);
 
   const refresh = useCallback(async () => {
     setLoadingList(true);
     setWriteBlocked(null);
-    try {
-      const qs = new URLSearchParams();
-      qs.set('rootId', rootId);
-      if (cwd) qs.set('path', cwd);
-      const res = await fetch(`/api/agents/workspace?${qs.toString()}`);
-      const data = await res.json();
-      if (!res.ok) throw new Error(String(data?.error || 'Failed'));
-      setEntries(data.entries || []);
-      setRootWritable(Boolean(data.writable));
-      setRootLabel(String(data.rootLabel || rootLabel));
-    } catch (e) {
-      toast.error((e as Error).message || 'Failed to load workspace files');
-    } finally {
-      setLoadingList(false);
-    }
-  }, [cwd, rootId, rootLabel]);
+    await fetchEntries();
+  }, [fetchEntries]);
 
   useEffect(() => {
-    setCwd('');
-    setSelected(null);
-    setContent('');
-  }, [rootId]);
-
-  useEffect(() => {
-    refresh();
-  }, [refresh]);
+    fetchEntries();
+  }, [fetchEntries]);
 
   const openFile = async (p: string) => {
     setLoadingFile(true);

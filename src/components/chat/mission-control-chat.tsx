@@ -50,95 +50,130 @@ export function MissionControlChat() {
   const [agents, setAgents] = useState<string[]>([]);
   const [copyingId, setCopyingId] = useState<number | null>(null);
 
-  const loadHistory = useCallback(async () => {
-    setHistoryLoading(true);
-    try {
-      const params = new URLSearchParams();
-      params.set('mode', mode);
-      params.set('list', 'true');
-      const res = await fetch(`/api/mission-control/chat?${params.toString()}`, { cache: 'no-store' });
-      if (!res.ok) return;
-      const data = (await res.json()) as HistoryData;
-      const nextConversations = Array.isArray(data.conversations) ? data.conversations : [];
-      setConversations(nextConversations);
-      if (Array.isArray(data.agents) && data.agents.length > 0) {
-        setAgents(data.agents);
-        setFromAgent((prev) => (prev && data.agents.includes(prev) ? prev : data.agents[0]));
-        setToAgent((prev) => {
-          if (prev && data.agents.includes(prev) && prev !== data.agents[0]) return prev;
-          const fallback = data.agents.find((a) => a !== data.agents[0]);
-          return fallback ?? data.agents[0];
-        });
+  // In agent-bridge mode the conversation id and the from/to agents mirror each
+  // other: a newly chosen a2a conversation sets the agents, otherwise the
+  // agents pick the conversation. Reconciled during render, not in effects.
+  const [bridgeSync, setBridgeSync] = useState({ mode, fromAgent, toAgent, conversationId });
+  if (
+    bridgeSync.mode !== mode
+    || bridgeSync.fromAgent !== fromAgent
+    || bridgeSync.toAgent !== toAgent
+    || bridgeSync.conversationId !== conversationId
+  ) {
+    let nextFrom = fromAgent;
+    let nextTo = toAgent;
+    let nextConversationId = conversationId;
+    if (mode === 'agent_bridge') {
+      if (bridgeSync.conversationId !== conversationId && conversationId.startsWith('mc:a2a:')) {
+        const [, , parsedFrom, parsedTo] = conversationId.split(':');
+        if (parsedFrom) nextFrom = parsedFrom;
+        if (parsedTo) nextTo = parsedTo;
+      } else if (fromAgent && toAgent && fromAgent !== toAgent) {
+        nextConversationId = `mc:a2a:${fromAgent}:${toAgent}`;
       }
-      if (nextConversations.length > 0) {
-        const stillExists = nextConversations.some((c) => c.conversation_id === conversationId);
-        if (!conversationId || !stillExists) {
-          setConversationId(nextConversations[0].conversation_id);
-        }
-      } else {
-        setConversationId('');
-      }
-    } finally {
-      setHistoryLoading(false);
     }
+    setBridgeSync({ mode, fromAgent: nextFrom, toAgent: nextTo, conversationId: nextConversationId });
+    if (nextFrom !== fromAgent) setFromAgent(nextFrom);
+    if (nextTo !== toAgent) setToAgent(nextTo);
+    if (nextConversationId !== conversationId) setConversationId(nextConversationId);
+  }
+
+  // Show loading states whenever the inputs of a fetch change (and on mount).
+  const historyKey = `${mode}\u0000${conversationId}`;
+  const [historyLoadingKey, setHistoryLoadingKey] = useState<string | null>(null);
+  if (historyLoadingKey !== historyKey) {
+    setHistoryLoadingKey(historyKey);
+    setHistoryLoading(true);
+  }
+  const messagesKey = `${mode}\u0000${conversationId}\u0000${fromAgent}\u0000${toAgent}`;
+  const [messagesLoadingKey, setMessagesLoadingKey] = useState<string | null>(null);
+  if (messagesLoadingKey !== messagesKey) {
+    setMessagesLoadingKey(messagesKey);
+    setLoading(true);
+  }
+
+  const fetchHistory = useCallback(() => {
+    const params = new URLSearchParams();
+    params.set('mode', mode);
+    params.set('list', 'true');
+    return fetch(`/api/mission-control/chat?${params.toString()}`, { cache: 'no-store' })
+      .then(async (res) => {
+        if (!res.ok) return;
+        const data = (await res.json()) as HistoryData;
+        const nextConversations = Array.isArray(data.conversations) ? data.conversations : [];
+        setConversations(nextConversations);
+        if (Array.isArray(data.agents) && data.agents.length > 0) {
+          setAgents(data.agents);
+          setFromAgent((prev) => (prev && data.agents.includes(prev) ? prev : data.agents[0]));
+          setToAgent((prev) => {
+            if (prev && data.agents.includes(prev) && prev !== data.agents[0]) return prev;
+            const fallback = data.agents.find((a) => a !== data.agents[0]);
+            return fallback ?? data.agents[0];
+          });
+        }
+        if (nextConversations.length > 0) {
+          const stillExists = nextConversations.some((c) => c.conversation_id === conversationId);
+          if (!conversationId || !stillExists) {
+            setConversationId(nextConversations[0].conversation_id);
+          }
+        } else {
+          setConversationId('');
+        }
+      })
+      .finally(() => {
+        setHistoryLoading(false);
+      });
   }, [mode, conversationId]);
 
-  const loadMessages = useCallback(async () => {
+  const loadHistory = useCallback(() => {
+    setHistoryLoading(true);
+    return fetchHistory();
+  }, [fetchHistory]);
+
+  const fetchMessages = useCallback(() => {
+    const params = new URLSearchParams();
+    params.set('mode', mode);
+    if (conversationId) params.set('conversation_id', conversationId);
+    if (mode === 'agent_bridge') {
+      params.set('from_agent', fromAgent);
+      params.set('to_agent', toAgent);
+    }
+    return fetch(`/api/mission-control/chat?${params.toString()}`, { cache: 'no-store' })
+      .then(async (res) => {
+        if (!res.ok) return;
+        const data = (await res.json()) as MissionData;
+        setMessages(Array.isArray(data.messages) ? data.messages : []);
+        if (Array.isArray(data.agents) && data.agents.length > 0) {
+          setAgents(data.agents);
+          setFromAgent((prev) => (prev && data.agents.includes(prev) ? prev : data.agents[0]));
+          setToAgent((prev) => {
+            if (prev && data.agents.includes(prev) && prev !== data.agents[0]) return prev;
+            const fallback = data.agents.find((a) => a !== data.agents[0]);
+            return fallback ?? data.agents[0];
+          });
+        }
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, [mode, conversationId, fromAgent, toAgent]);
+
+  const loadMessages = useCallback(() => {
     setLoading(true);
-    try {
-      const params = new URLSearchParams();
-      params.set('mode', mode);
-      if (conversationId) params.set('conversation_id', conversationId);
-      if (mode === 'agent_bridge') {
-        params.set('from_agent', fromAgent);
-        params.set('to_agent', toAgent);
-      }
-      const res = await fetch(`/api/mission-control/chat?${params.toString()}`, { cache: 'no-store' });
-      if (!res.ok) return;
-      const data = (await res.json()) as MissionData;
-      setMessages(Array.isArray(data.messages) ? data.messages : []);
-      if (Array.isArray(data.agents) && data.agents.length > 0) {
-        setAgents(data.agents);
-        setFromAgent((prev) => (prev && data.agents.includes(prev) ? prev : data.agents[0]));
-        setToAgent((prev) => {
-          if (prev && data.agents.includes(prev) && prev !== data.agents[0]) return prev;
-          const fallback = data.agents.find((a) => a !== data.agents[0]);
-          return fallback ?? data.agents[0];
-        });
-      }
-    } finally {
-      setLoading(false);
-    }
-  }, [mode, conversationId, fromAgent, toAgent]);
+    return fetchMessages();
+  }, [fetchMessages]);
 
   useEffect(() => {
-    loadHistory().catch(() => {});
-  }, [loadHistory]);
+    fetchHistory().catch(() => {});
+  }, [fetchHistory]);
 
   useEffect(() => {
-    if (mode !== 'agent_bridge') return;
-    if (!fromAgent || !toAgent || fromAgent === toAgent) return;
-    const desired = `mc:a2a:${fromAgent}:${toAgent}`;
-    if (desired !== conversationId) {
-      setConversationId(desired);
-    }
-  }, [mode, fromAgent, toAgent, conversationId]);
-
-  useEffect(() => {
-    if (mode === 'agent_bridge' && conversationId.startsWith('mc:a2a:')) {
-      const [, , parsedFrom, parsedTo] = conversationId.split(':');
-      if (parsedFrom && parsedFrom !== fromAgent) setFromAgent(parsedFrom);
-      if (parsedTo && parsedTo !== toAgent) setToAgent(parsedTo);
-    }
-  }, [mode, conversationId, fromAgent, toAgent]);
-
-  useEffect(() => {
-    loadMessages().catch(() => {});
+    fetchMessages().catch(() => {});
     const timer = setInterval(() => {
       loadMessages().catch(() => {});
     }, 10000);
     return () => clearInterval(timer);
-  }, [loadMessages]);
+  }, [fetchMessages, loadMessages]);
 
   async function sendMessage() {
     const content = input.trim();

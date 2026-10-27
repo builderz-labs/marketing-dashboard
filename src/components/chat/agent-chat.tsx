@@ -174,10 +174,8 @@ export function AgentChat() {
     }
   }, [activeConv]);
 
-  useEffect(() => { loadMessages(); }, [loadMessages]);
-
-  // Poll for new messages
-  useSmartPoll(loadMessages, { interval: 10_000, enabled: !!activeConv && expanded });
+  // Poll for new messages; `key` refetches immediately when the conversation changes
+  useSmartPoll(loadMessages, { interval: 10_000, enabled: !!activeConv && expanded, key: activeConv });
 
   // Auto-scroll on new messages
   useEffect(() => {
