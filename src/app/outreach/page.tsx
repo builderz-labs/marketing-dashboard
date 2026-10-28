@@ -161,7 +161,7 @@ export default function OutreachPage() {
                     <span className={`badge ${r.tier === 'A' ? 'badge-success' : r.tier === 'B' ? 'badge-info' : 'badge-neutral'}`}>
                       {r.tier}
                     </span>
-                  ) : <span>\u2014</span> },
+                  ) : <span>{'\u2014'}</span> },
                   { key: 'status', label: 'Status', render: (r: Lead) => (
                     <select
                       className="px-2 py-0.5 text-xs min-h-[24px]"
